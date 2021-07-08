@@ -35,14 +35,14 @@ frames = []
 # 10 frames to render.
 for frame in range(1):
     # PIL accesses images in Cartesian co-ordinates, so it is Image[columns, rows]
-    frames.append(Image.new('RGB', (250, 250), "#fff"))  # create a new black image
+    frames.append(Image.new('RGB', (251, 251), "#555"))  # create a new black image
     pixels = frames[frame].load()  # create the pixel map
 
     x, y = 0, 0
     for row in cells:
         x = 0
         for cell in row:
-            draw_cell = [(x * 50, y * 50), ((x + 1) * 50), ((y + 1) * 50)]
+            draw_cell = [(x * 50 + 1, y * 50 + 1), ((x + 1) * 50 - 1), ((y + 1) * 50 - 1)]
             # create rectangle image
             img1 = ImageDraw.Draw(frames[frame])
             print("[" + str(x) + "][" + str(y) + "]: " + str(cells[x][y]))
