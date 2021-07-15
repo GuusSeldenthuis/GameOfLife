@@ -1,7 +1,6 @@
 #!/bin/python3
 
 from PIL import Image, ImageDraw
-import random
 
 init_state = "     " + \
              "  #  " + \
@@ -17,7 +16,7 @@ def make_cells(init_state):
     for char in range(0, len(init_state)):
         new_cells[i][j] = True if init_state[char] == "#" else False
 
-        # Up i,j's based on the x,y's
+        # Up i, j's based on the w, h's
         i += 1
         if i == w:
             i = 0
@@ -44,10 +43,11 @@ for frame in range(1):
         for cell in row:
             draw_cell = [(x * 50 + 1, y * 50 + 1), ((x + 1) * 50 - 1), ((y + 1) * 50 - 1)]
             # create rectangle image
-            img1 = ImageDraw.Draw(frames[frame])
+            square = ImageDraw.Draw(frames[frame])
             print("[" + str(x) + "][" + str(y) + "]: " + str(cells[x][y]))
             colour = "#fff" if cells[x][y] else "#000"
-            img1.rectangle(draw_cell, fill=colour)
+            square.rectangle(draw_cell, fill=colour)
+
             x += 1
         y += 1
 
