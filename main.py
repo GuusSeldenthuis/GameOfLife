@@ -92,15 +92,7 @@ for frame in range(25):
             draw_cell = [(x * 50 + 1, y * 50 + 1), ((x + 1) * 50 - 1), ((y + 1) * 50 - 1)]
             # create rectangle image
             square = ImageDraw.Draw(frames[frame])
-            # print("[" + str(x) + "][" + str(y) + "]: " + str(cells[x][y]))
-            if old_cells[x][y] != cells[x][y]:
-                if cells[x][y]:
-                    colour = "#6f6"
-                else:
-                    colour = "#f66"
-            else:
-                colour = "#fff" if cells[x][y] else "#000"
-
+            colour = "#fff" if cells[x][y] else "#000"
             square.rectangle(draw_cell, fill=colour)
 
             x += 1
