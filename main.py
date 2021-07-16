@@ -7,10 +7,10 @@ from copy import deepcopy
 def make_cells(seed, width, height):
     i, j = 0, 0
     splitted = seed.split(".")
-    new_cells = [[0 for x in range(width)] for y in range(height)]
+    new_cells = [[0 for x in range(width)] for xx in range(height)]
     for line in splitted:
         for char in line:
-            new_cells[i][j] = (char != " ")
+            new_cells[j][i] = (char != " ")
             i += 1
         i = 0
         j += 1
@@ -38,8 +38,8 @@ def amount_of_neighbors(cells, posx, posy):
 
 
 def calc_new_state():
-    for cur_cell_y in range(len(cells)):
-        for cur_cell_x in range(len(cells[cur_cell_y])):
+    for cur_cell_x in range(len(cells)):
+        for cur_cell_y in range(len(cells[cur_cell_x])):
             neighbors = amount_of_neighbors(old_cells, cur_cell_x, cur_cell_y)
             if cells[cur_cell_x][cur_cell_y] and (neighbors < 2) or (neighbors > 3):
                 cells[cur_cell_x][cur_cell_y] = False
@@ -49,8 +49,10 @@ def calc_new_state():
     return cells
 
 
-w, h = 5, 5
+w, h = 10, 20
 tile_size = 25
+# Start a new-line with a "." dot.
+# Everything else than a " " space is an active cell.
 init_state = "     ." + \
              "  #  ." + \
              "  #  ." + \
@@ -66,14 +68,16 @@ frames = []
 # 10 frames to render.
 for frame in range(25):
     # PIL accesses images in Cartesian co-ordinates, so it is Image[columns, rows]
-    frames.append(Image.new('RGB', ((tile_size * w) + 1, ((tile_size * h) + 1)), "#555"))  # create a new black image
+    frames.append(Image.new('RGB', (1000, 1000), "#555"))  # create a new black image
+    # frames.append(Image.new('RGB', ((tile_size * w) + 1, ((tile_size * h) + 1)), "#555"))  # create a new black image
     pixels = frames[frame].load()  # create the pixel map
 
-    for cell_y in range(len(cells)):
-        for cell_x in range(len(cells[cell_y])):
+    for cell_x in range(len(cells)):
+        for cell_y in range(len(cells[cell_x])):
             draw_cell = [(cell_x * tile_size + 1, cell_y * tile_size + 1), ((cell_x + 1) * tile_size - 1), ((cell_y + 1) * tile_size - 1)]
             # create rectangle image
             square = ImageDraw.Draw(frames[frame])
+            print(cell_x, cell_y)
             colour = "#fff" if cells[cell_x][cell_y] else "#000"
             square.rectangle(draw_cell, fill=colour)
 
