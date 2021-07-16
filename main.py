@@ -49,15 +49,16 @@ def calc_new_state():
     return cells
 
 
-w, h = 10, 20
+w, h = 10, 10
 tile_size = 25
 # Start a new-line with a "." dot.
 # Everything else than a " " space is an active cell.
-init_state = "     ." + \
+init_state = " #   #." + \
+             "  #  # #." + \
+             "     ." + \
              "  #  ." + \
-             "  #  ." + \
-             "  #  ." + \
-             "     ."
+             "    #." + \
+             "#######"
 
 
 cells = make_cells(init_state, w, h)
@@ -66,10 +67,10 @@ old_cells = deepcopy(cells)
 # Do things.
 frames = []
 # 10 frames to render.
-for frame in range(25):
+for frame in range(50):
     # PIL accesses images in Cartesian co-ordinates, so it is Image[columns, rows]
-    frames.append(Image.new('RGB', (1000, 1000), "#555"))  # create a new black image
-    # frames.append(Image.new('RGB', ((tile_size * w) + 1, ((tile_size * h) + 1)), "#555"))  # create a new black image
+    # frames.append(Image.new('RGB', (1000, 1000), "#555"))  # create a new black image
+    frames.append(Image.new('RGB', ((tile_size * w) + 1, ((tile_size * h) + 1)), "#555"))  # create a new black image
     pixels = frames[frame].load()  # create the pixel map
 
     for cell_x in range(len(cells)):
