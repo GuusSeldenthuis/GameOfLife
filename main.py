@@ -2,6 +2,7 @@
 
 from PIL import Image, ImageDraw
 from copy import deepcopy
+import csv
 
 
 def make_cells(seed, width, height):
@@ -49,19 +50,21 @@ def calc_new_state():
     return cells
 
 
-w, h = 10, 10
+w, h = 20, 20
 tile_size = 25
 # Start a new-line with a "." dot.
 # Everything else than a " " space is an active cell.
-init_state = " #   #." + \
-             "  #  # #." + \
-             "     ." + \
-             "  #  ." + \
-             "    #." + \
-             "#######"
+cells = list(csv.reader(open("test.csv")))
+
+# init_state = " #   #." + \
+#              "  #  # #." + \
+#              "     ." + \
+#              "  #  ." + \
+#              "    #." + \
+#              "#######"
 
 
-cells = make_cells(init_state, w, h)
+# cells = make_cells(init_state, w, h)
 old_cells = deepcopy(cells)
 
 # Do things.
