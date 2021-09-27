@@ -7,10 +7,11 @@ For more info about python see [the website](https://python.org/) lol.
 
 ### Features
 * #### GIF generated output
-    Because why not, less tech debt and generating GIFs is underrated.
+    Because why not, less complexity and GIFs are underrated.
+	
 
 * #### Customizable 'field' size.
-    The game's filed-size is and can be user-defined.
+    The game's tile-size is and can be user-defined.
     
     Example shown above is 5x5, example underneath is 12x6.
 
