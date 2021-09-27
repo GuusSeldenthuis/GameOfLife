@@ -2,111 +2,91 @@
 
 from PIL import Image, ImageDraw
 from copy import deepcopy
+import csv
 
-w, h = 5, 5
-init_state = "     " + \
-             "  #  " + \
-             "  #  " + \
-             "  #  " + \
-             "     "
-
-
-def make_cells(init_state):
-    i, j = 0, 0
-    new_cells = [[0 for x in range(w)] for y in range(h)]
-    for char in range(0, len(init_state)):
-        new_cells[i][j] = True if init_state[char] == "#" else False
-
-        # Up i, j's based on the w, h's
-        i += 1
-        if i == w:
-            i = 0
-            j += 1
-        if j == h:
-            return new_cells
+""""
+SETTINGS, GLHF.
+"""
+tile_size = 25  # How big in px are the tiles. (25x25 for example)
+# max frames -1 for rendering untill no change. (10000 when -1 to avoid endless loop.)
+max_frames = 10
+background_color = "#000"  # Tile-frame/background color.
+inactive_color = "#060"  # Inactive tile color.
+active_color = "#fff"  # Inactive tile color.
+# Your comma seperated values file. (Used as source for initial state)
+csv_source = "./example.csv"
+out_location = "./output.gif"  # Location of the outputted .gif file.
+frame_delay = 250  # Amount of ms between frames.
+loop_gif = 0  # Set to False to no-loop gif.
+""""
+END OF SETTINGS.
+"""
 
 
-cells = make_cells(init_state)
-old_cells = deepcopy(cells)
+# 'Safe' way to check for active neighbors despite being outside of the matrix.
+def is_active(cells, x, y):
+    try:
+        return cells[x][y]
+    except IndexError:
+        return False
 
 
+# Count all active neighbors.
 def amount_of_neighbors(cells, posx, posy):
     neighbors = 0
-    # All left neighbors.
-    if posx > 0:
-        if cells[posx - 1][posy]:
-            neighbors += 1
-        if posy > 0 and cells[posx - 1][posy - 1]:
-            neighbors += 1
-        if posy < (h - 1) and cells[posx - 1][posy + 1]:
-            neighbors += 1
-    # All right neighbors.
-    if posx < (w - 1):
-        if cells[posx + 1][posy]:
-            neighbors += 1
-        if posy > 0 and cells[posx + 1][posy - 1]:
-            neighbors += 1
-        if posy < (h - 1) and cells[posx + 1][posy + 1]:
-            neighbors += 1
-
-    # Top neighbor
-    if posy > 0 and cells[posx][posy - 1]:
-        neighbors += 1
-    # Bottom neighbor
-    if posy < (h - 1) and cells[posx][posy + 1]:
-        neighbors += 1
+    neighbors += 1 if is_active(cells, posx-1, posy-1) else 0
+    neighbors += 1 if is_active(cells, posx, posy-1) else 0
+    neighbors += 1 if is_active(cells, posx+1, posy-1) else 0
+    neighbors += 1 if is_active(cells, posx-1, posy) else 0
+    neighbors += 1 if is_active(cells, posx+1, posy) else 0
+    neighbors += 1 if is_active(cells, posx-1, posy+1) else 0
+    neighbors += 1 if is_active(cells, posx, posy+1) else 0
+    neighbors += 1 if is_active(cells, posx+1, posy+1) else 0
     return neighbors
 
 
+# Da rulez.
 def calc_new_state():
-    x, y = 0, 0
-    for row in old_cells:
-        x = 0
-        for cell in row:
-            neighbors = amount_of_neighbors(old_cells, x, y)
+    for cur_cell_x in range(len(cells)):
+        for cur_cell_y in range(len(cells[cur_cell_x])):
+            neighbors = amount_of_neighbors(old_cells, cur_cell_x, cur_cell_y)
+            if cells[cur_cell_x][cur_cell_y] and (neighbors < 2) or (neighbors > 3):
+                cells[cur_cell_x][cur_cell_y] = False
+            elif neighbors == 3:
+                cells[cur_cell_x][cur_cell_y] = True
 
-            if cells[x][y]:
-                if (neighbors < 2) or (neighbors > 3):
-                    cells[x][y] = False
-            else:
-                if neighbors == 3:
-                    cells[x][y] = True
-
-            x += 1
-        y += 1
     return cells
 
 
-# Do things.
+# Do loading n' stuff.
+cells = list(csv.reader(open(csv_source)))
+h, w = len(cells), len(cells[0])
+print("Height: %i" % h)
+print("Width: %i" % w)
+old_cells = deepcopy(cells)
+
 frames = []
-# 10 frames to render.
-for frame in range(25):
+for_frames = 10000 if max_frames == -1 else max_frames
+for frame in range(for_frames):
     # PIL accesses images in Cartesian co-ordinates, so it is Image[columns, rows]
-    frames.append(Image.new('RGB', (251, 251), "#555"))  # create a new black image
+    frames.append(Image.new('RGB', ((tile_size * h) + 1,
+                  ((tile_size * w) + 1)), background_color))
     pixels = frames[frame].load()  # create the pixel map
 
-    x, y = 0, 0
-    for row in cells:
-        x = 0
-        for cell in row:
-            draw_cell = [(x * 50 + 1, y * 50 + 1), ((x + 1) * 50 - 1), ((y + 1) * 50 - 1)]
-            # create rectangle image
+    for cell_x in range(len(cells)):
+        for cell_y in range(len(cells[cell_x])):
+            draw_cell = [(cell_x * tile_size + 1, cell_y * tile_size + 1),
+                         ((cell_x + 1) * tile_size - 1), ((cell_y + 1) * tile_size - 1)]
             square = ImageDraw.Draw(frames[frame])
-            # print("[" + str(x) + "][" + str(y) + "]: " + str(cells[x][y]))
-            if old_cells[x][y] != cells[x][y]:
-                if cells[x][y]:
-                    colour = "#6f6"
-                else:
-                    colour = "#f66"
-            else:
-                colour = "#fff" if cells[x][y] else "#000"
-
+            colour = active_color if cells[cell_x][cell_y] else inactive_color
             square.rectangle(draw_cell, fill=colour)
 
-            x += 1
-        y += 1
     old_cells = deepcopy(cells)
     cells = calc_new_state()
+    if cells == old_cells:
+        print("Frames are the same, stopping.")
+        break
 
-# render the gif
-frames[0].save('out.gif', save_all=True, append_images=frames[1:], optimize=False, loop=0, duration=250)
+# render the gif with all created frames.
+frames[0].save(out_location, save_all=True, append_images=frames[1:],
+               optimize=True, loop=loop_gif, duration=frame_delay)
