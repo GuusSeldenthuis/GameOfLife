@@ -5,10 +5,16 @@ For more info about Conway's Game of Life see its [wikipedia page](https://en.wi
 
 For more info about python see [the website](https://python.org/) lol.
 
+### Installation
+
+You'll need python3 and maybe pip3 if you dont have the following packages:
+* PIL [Docs](https://pillow.readthedocs.io/en/stable/installation.html#basic-installation)
+
+
 ### Features
 * #### GIF generated output
     Because why not, less complexity and GIFs are underrated.
-	
+
 
 * #### Customizable 'field' size.
     The game's tile-size is and can be user-defined.
