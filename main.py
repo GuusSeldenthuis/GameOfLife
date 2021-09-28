@@ -69,17 +69,19 @@ frames = []
 for_frames = 10000 if max_frames == -1 else max_frames
 for frame in range(for_frames):
     # PIL accesses images in Cartesian co-ordinates, so it is Image[columns, rows]
-    frames.append(Image.new('RGB', ((tile_size * h) + 1,
-                  ((tile_size * w) + 1)), background_color))
+    frames.append(Image.new('RGB', ((tile_size * w) + 1,
+                  ((tile_size * h) + 1)), background_color))
     pixels = frames[frame].load()  # create the pixel map
 
-    for cell_x in range(len(cells)):
-        for cell_y in range(len(cells[cell_x])):
-            draw_cell = [(cell_x * tile_size + 1, cell_y * tile_size + 1),
-                         ((cell_x + 1) * tile_size - 1), ((cell_y + 1) * tile_size - 1)]
+    for row in range(len(cells)):
+        for column in range(len(cells[row])):
+            draw_cell = [
+                (column * tile_size, row * tile_size),
+                (column * tile_size + tile_size, row * tile_size + tile_size)
+            ]
             square = ImageDraw.Draw(frames[frame])
-            colour = active_color if cells[cell_x][cell_y] else inactive_color
-            square.rectangle(draw_cell, fill=colour)
+            colour = active_color if cells[row][column] else inactive_color
+            square.rectangle(draw_cell, fill=colour, outline=background_color)
 
     old_cells = deepcopy(cells)
     cells = calc_new_state()
