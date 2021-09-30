@@ -9,13 +9,15 @@ SETTINGS, GLHF.
 """
 tile_size = 25  # How big in px are the tiles. (25x25 for example)
 # max frames -1 for rendering untill no change. (10000 when -1 to avoid endless loop.)
-max_frames = 10
-background_color = "#000"  # Tile-frame/background color.
-inactive_color = "#060"  # Inactive tile color.
+max_frames = 2
+background_color = "#222"  # Tile-frame/background color.
+inactive_color = "#000"  # Inactive tile color.
 active_color = "#fff"  # Inactive tile color.
+height = 4  # Horizonal cells (Set to 0 if it should be the cvs' max-height).
+width = 4 # Vertical cells (Set to 0 if it should be the cvs' max-width).
 # Your comma seperated values file. (Used as source for initial state)
-csv_source = "./example.csv"
-out_location = "./output.gif"  # Location of the outputted .gif file.
+csv_source = "./examples/blinker.csv"
+out_location = "./examples/blinker.gif"  # Location of the outputted .gif file.
 frame_delay = 250  # Amount of ms between frames.
 loop_gif = 0  # Set to False to no-loop gif.
 """"
@@ -59,27 +61,41 @@ def calc_new_state():
 
 
 # Do loading n' stuff.
-cells = list(csv.reader(open(csv_source)))
+content = list(csv.reader(open(csv_source)))
+content_height, content_width = len(content), len(content[0])
+# Decide the map's height and width.
+print("Before: %i, %i." % (len(content), len(content[0])))
+
+if ((height > 0 or width > 0) and (content_height < height or content_width < width)):
+    cells = [[None for i in range(width)] for j in range(height)]
+    for row in range(len(content)):
+        for column in range(len(content[row])):
+            cells[row][column] = content[row][column]
+else:
+    cells = content
+
 h, w = len(cells), len(cells[0])
-print("Height: %i" % h)
-print("Width: %i" % w)
+print(cells)
+print("Rendering GIF with height: %i and width: %i." % (h, w))
 old_cells = deepcopy(cells)
 
 frames = []
-for_frames = 10000 if max_frames == -1 else max_frames
+for_frames = 10000 if max_frames < 0 else max_frames
 for frame in range(for_frames):
     # PIL accesses images in Cartesian co-ordinates, so it is Image[columns, rows]
-    frames.append(Image.new('RGB', ((tile_size * h) + 1,
-                  ((tile_size * w) + 1)), background_color))
+    frames.append(Image.new('RGB', ((tile_size * w) + 1,
+                  ((tile_size * h) + 1)), background_color))
     pixels = frames[frame].load()  # create the pixel map
 
-    for cell_x in range(len(cells)):
-        for cell_y in range(len(cells[cell_x])):
-            draw_cell = [(cell_x * tile_size + 1, cell_y * tile_size + 1),
-                         ((cell_x + 1) * tile_size - 1), ((cell_y + 1) * tile_size - 1)]
+    for row in range(len(cells)):
+        for column in range(len(cells[row])):
+            draw_cell = [
+                (column * tile_size, row * tile_size),
+                (column * tile_size + tile_size, row * tile_size + tile_size)
+            ]
             square = ImageDraw.Draw(frames[frame])
-            colour = active_color if cells[cell_x][cell_y] else inactive_color
-            square.rectangle(draw_cell, fill=colour)
+            colour = active_color if cells[row][column] else inactive_color
+            square.rectangle(draw_cell, fill=colour, outline=background_color)
 
     old_cells = deepcopy(cells)
     cells = calc_new_state()
@@ -90,3 +106,5 @@ for frame in range(for_frames):
 # render the gif with all created frames.
 frames[0].save(out_location, save_all=True, append_images=frames[1:],
                optimize=True, loop=loop_gif, duration=frame_delay)
+
+print("Saved outputted GIF to: %s" % out_location)
