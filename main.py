@@ -61,8 +61,7 @@ def calc_new_state():
 # Do loading n' stuff.
 cells = list(csv.reader(open(csv_source)))
 h, w = len(cells), len(cells[0])
-print("Height: %i" % h)
-print("Width: %i" % w)
+print("Randering GIF with height: %i and width: %i." % (h, w))
 old_cells = deepcopy(cells)
 
 frames = []
@@ -92,3 +91,4 @@ for frame in range(for_frames):
 # render the gif with all created frames.
 frames[0].save(out_location, save_all=True, append_images=frames[1:],
                optimize=True, loop=loop_gif, duration=frame_delay)
+print("Saved outputted GIF to: %s" % out_location)
