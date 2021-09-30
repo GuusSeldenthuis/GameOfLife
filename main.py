@@ -66,7 +66,7 @@ print("Width: %i" % w)
 old_cells = deepcopy(cells)
 
 frames = []
-for_frames = 10000 if max_frames == -1 else max_frames
+for_frames = 10000 if max_frames < 0 else max_frames
 for frame in range(for_frames):
     # PIL accesses images in Cartesian co-ordinates, so it is Image[columns, rows]
     frames.append(Image.new('RGB', ((tile_size * w) + 1,
