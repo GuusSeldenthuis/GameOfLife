@@ -21,7 +21,7 @@ You'll need python3 and maybe pip3 if you dont have the following packages:
     
 
 	![4x4 with a tile-size of 25x25 px](/examples/blinker.gif?raw=true "Blinker")
-    Example shown above is 4x4 with a tile-size of 25x25 px.
+    Example here above is 4x4 with a tile-size of 25x25 px.
 
 * #### Dynamic frame amount or statically defined.
     The amount of GIF frames can be defined, if their not the frames are the amount of iterations required before the field stops changing.
@@ -29,3 +29,4 @@ You'll need python3 and maybe pip3 if you dont have the following packages:
 * #### Very cool much swag styling options.
     See example below, all RGB colors available.
   
+  ![Basic glider with custom filed-size](/examples/glider.gif?raw=true "Glider")
