@@ -19,7 +19,9 @@ You'll need python3 and maybe pip3 if you dont have the following packages:
 * #### Customizable 'field' size.
     The game's tile-size is and can be user-defined.
     
-    Example shown above is 5x5, example underneath is 12x6.
+
+	![4x4 with a tile-size of 25x25 px](/examples/blinker.gif?raw=true "Blinker")
+    Example shown above is 4x4 with a tile-size of 25x25 px.
 
 * #### Dynamic frame amount or statically defined.
     The amount of GIF frames can be defined, if their not the frames are the amount of iterations required before the field stops changing.
