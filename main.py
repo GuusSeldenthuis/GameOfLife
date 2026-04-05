@@ -7,18 +7,18 @@ import csv
 SETTINGS, GLHF.
 """
 tile_size = 10  # How big in px are the tiles. (25x25 for example)
-# max frames -1 for rendering untill no change. (10000 when -1 to avoid endless loop.)
-max_frames = 30  # Changed to 2 since we only need two states for the blinker
+# max frames -1 for rendering until no change. (10000 when -1 to avoid endless loop.)
+max_frames = 30
 background_color = "#000"  # Tile-frame/background color.
 inactive_color = "#010"  # Inactive tile color.
-active_color = "#0f0"  # Inactive tile color.
-height = 10  # Horizonal cells (Set to 0 if it should be the cvs' max-height).
-width = 10 # Vertical cells (Set to 0 if it should be the cvs' max-width).
-# Your comma seperated values file. (Used as source for initial state)
+active_color = "#0f0"  # Active tile color.
+height = 10  # Vertical cells (Set to 0 if it should be the csv's max-height).
+width = 10  # Horizontal cells (Set to 0 if it should be the csv's max-width).
+# Your comma separated values file. (Used as source for initial state)
 csv_source = "./examples/glider.csv"
 out_location = "./examples/glider.gif"  # Location of the outputted .gif file.
 frame_delay = 100  # Amount of ms between frames.
-loop_gif = 1  # Set to False to no-loop gif.
+loop_gif = 0  # Set to 0 to loop forever, or n to loop n times.
 """"
 END OF SETTINGS.
 """
@@ -68,7 +68,8 @@ def calc_new_state(current_cells):
 
 
 # Do loading n' stuff.
-content = list(csv.reader(open(csv_source)))
+with open(csv_source) as f:
+    content = list(csv.reader(f))
 content_height, content_width = len(content), len(content[0])
 # Convert CSV content to boolean values
 content = [[cell == 'x' for cell in row] for row in content]
@@ -78,8 +79,8 @@ print("Before: %i, %i." % (len(content), len(content[0])))
 
 if ((height > 0 or width > 0) and (content_height < height or content_width < width)):
     cells = [[False for i in range(width)] for j in range(height)]
-    for row in range(len(content)):
-        for column in range(len(content[row])):
+    for row in range(min(len(content), height)):
+        for column in range(min(len(content[row]), width)):
             cells[row][column] = content[row][column]
 else:
     cells = content
@@ -92,15 +93,15 @@ print("Rendering GIF with height: %i and width: %i." % (h, w))
 
 frames = []
 current_state = cells
-for frame in range(max_frames):
+frame_limit = 10000 if max_frames == -1 else max_frames
+for frame in range(frame_limit):
     print(f"\nFrame {frame}:")
     for row in current_state:
         print(['x' if cell else '.' for cell in row])
-        
+
     # PIL accesses images in Cartesian co-ordinates, so it is Image[columns, rows]
     frames.append(Image.new('RGB', (tile_size * w,
                   tile_size * h), background_color))
-    pixels = frames[frame].load()  # create the pixel map
 
     for row in range(len(current_state)):
         for column in range(len(current_state[row])):
@@ -112,7 +113,10 @@ for frame in range(max_frames):
             colour = active_color if current_state[row][column] else inactive_color
             square.rectangle(draw_cell, fill=colour, outline=background_color)
 
-    current_state = calc_new_state(current_state)
+    next_state = calc_new_state(current_state)
+    if max_frames == -1 and next_state == current_state:
+        break
+    current_state = next_state
 
 # render the gif with all created frames.
 frames[0].save(out_location, save_all=True, append_images=frames[1:],
